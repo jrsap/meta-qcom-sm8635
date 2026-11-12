@@ -1,0 +1,79 @@
+From ae5be3e73ef2b8501d72fee43aae4af7382bff97 Mon Sep 17 00:00:00 2001
+From: jrsap <jrsap@users.noreply.github.com>
+Date: Wed, 11 Nov 2026 19:24:41 +0000
+Subject: [PATCH 2/2] drm/msm/adreno: add Adreno 735 (0x43030b00) catalog entry
+ for SM8635/cliffs
+
+The Retroid Pocket G2 (Snapdragon G2 Gen 2 = cliffs/SM8635) has an
+Adreno 735 (marketed as Adreno A22), an a7xx gen2 part. Mesa Turnip
+already knows it as FD735 (0x43030B00); the kernel catalog did not.
+Entry modeled on the a740 entry (same gen2 family, gmu_gen70200);
+verify hwcg/BCM values against CAF cliffs sources during bring-up.
+
+Also override the GPU node compatible to adreno-43030b00 in the
+SM8635 placeholder dtsi.
+
+Co-authored-by: jrsap <jrsap@users.noreply.github.com>
+---
+ arch/arm64/boot/dts/qcom/sm8635.dtsi      |  4 +++
+ drivers/gpu/drm/msm/adreno/a7xx_catalog.c | 35 +++++++++++++++++++++++
+ 2 files changed, 39 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/qcom/sm8635.dtsi b/arch/arm64/boot/dts/qcom/sm8635.dtsi
+index 45c6a8216..0c90b43ef 100644
+--- a/arch/arm64/boot/dts/qcom/sm8635.dtsi
++++ b/arch/arm64/boot/dts/qcom/sm8635.dtsi
+@@ -8,3 +8,7 @@ / {
+ 	model = "Qualcomm Technologies, Inc. SM8635";
+ 	compatible = "qcom,sm8635", "qcom,mtp";
+ };
++
++&gpu {
++	compatible = "qcom,adreno-43030b00", "qcom,adreno";
++};
+diff --git a/drivers/gpu/drm/msm/adreno/a7xx_catalog.c b/drivers/gpu/drm/msm/adreno/a7xx_catalog.c
+index 6f704898c..1b9d22100 100644
+--- a/drivers/gpu/drm/msm/adreno/a7xx_catalog.c
++++ b/drivers/gpu/drm/msm/adreno/a7xx_catalog.c
+@@ -372,6 +372,41 @@ static const struct adreno_info a7xx_gpus[] = {
+ 			},
+ 		},
+ 		.preempt_record_size = 4192 * SZ_1K,
++	}, {
++		.chip_ids = ADRENO_CHIP_IDS(0x43030b00), /* Adreno 735 */
++		.family = ADRENO_7XX_GEN2,
++		.fw = {
++			[ADRENO_FW_SQE] = "a735_sqe.fw",
++			[ADRENO_FW_GMU] = "gmu_gen70200.bin",
++		},
++		.gmem = 3 * SZ_1M,
++		.inactive_period = DRM_MSM_INACTIVE_PERIOD,
++		.quirks = ADRENO_QUIRK_HAS_CACHED_COHERENT |
++			  ADRENO_QUIRK_HAS_HW_APRIV |
++			  ADRENO_QUIRK_PREEMPTION,
++		.funcs = &a7xx_gpu_funcs,
++		.zapfw = "a735_zap.mbn",
++		.a6xx = &(const struct a6xx_info) {
++			.hwcg = a740_hwcg,
++			.protect = &a730_protect,
++			.pwrup_reglist = &a7xx_pwrup_reglist,
++			.dyn_pwrup_reglist = &a7xx_dyn_pwrup_reglist,
++			.gbif_cx = a640_gbif,
++			.gmu_chipid = 0x7020100,
++			.gmu_cgc_mode = 0x00020202,
++			.bcms = (const struct a6xx_bcm[]) {
++				{ .name = "SH0", .buswidth = 16 },
++				{ .name = "MC0", .buswidth = 4 },
++				{
++					.name = "ACV",
++					.fixed = true,
++					.perfmode = BIT(3),
++					.perfmode_bw = 16500000,
++				},
++				{ /* sentinel */ },
++			},
++		},
++		.preempt_record_size = 4192 * SZ_1K,
+ 	}, {
+ 		.chip_ids = ADRENO_CHIP_IDS(0x43050c01), /* "C512v2" */
+ 		.family = ADRENO_7XX_GEN2,
