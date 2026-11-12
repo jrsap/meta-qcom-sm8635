@@ -31,3 +31,10 @@ KBUILD_DEFCONFIG:qcom-armv7a = "qcom_defconfig"
 do_install:append:qcom() {
 	sed -i 's:${TMPDIR}::g' ${WORKDIR}/linux-${PACKAGE_ARCH}-${LINUX_KERNEL_TYPE}-build/drivers/gpu/drm/msm/generated/*
 }
+
+# Retroid Pocket G2 (SM8635/cliffs) support, mirrored from
+# vibe/retroid-g2-fef4cc in jrsap/linux-sm8635.
+SRC_URI:append:retroid-pocket-g2 = " \
+    file://retroid-g2/0001-arm64-dts-qcom-add-SM8635-cliffs-placeholder-dtsi-an.patch \
+    file://retroid-g2/0002-drm-msm-adreno-add-Adreno-735-0x43030b00-catalog-ent.patch \
+"

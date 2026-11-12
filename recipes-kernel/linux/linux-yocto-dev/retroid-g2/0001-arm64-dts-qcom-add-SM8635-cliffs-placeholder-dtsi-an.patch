@@ -1,0 +1,97 @@
+From a66b4ad9965e969e6c4d9535360f1028b19f4cde Mon Sep 17 00:00:00 2001
+From: jrsap <jrsap@users.noreply.github.com>
+Date: Wed, 11 Nov 2026 19:20:25 +0000
+Subject: [PATCH 1/2] arm64: dts: qcom: add SM8635 (cliffs) placeholder dtsi
+ and Retroid Pocket G2 board
+
+The Retroid Pocket G2 ships with the Snapdragon G2 Gen 2 gaming
+platform, which is Qualcomm cliffs/SM8635 (pineapple family, Adreno
+735). Mainline has no cliffs support yet; this adds a WIP placeholder
+sm8635.dtsi wrapping sm8650.dtsi (closest mainline base) plus a
+Retroid Pocket G2 board DT so the device can be brought up on mainline.
+Replace the wrapper with a real cliffs dtsi port (cf. CAF/LineageOS
+cliffs-* sources) as hardware details are confirmed.
+
+Verified with dtc against the qcom DT includes.
+
+Co-authored-by: jrsap <jrsap@users.noreply.github.com>
+---
+ .../devicetree/bindings/arm/qcom.yaml         |  5 +++++
+ arch/arm64/boot/dts/qcom/Makefile             |  1 +
+ .../dts/qcom/sm8635-retroid-pocket-g2.dts     | 21 +++++++++++++++++++
+ arch/arm64/boot/dts/qcom/sm8635.dtsi          | 10 +++++++++
+ 4 files changed, 37 insertions(+)
+ create mode 100644 arch/arm64/boot/dts/qcom/sm8635-retroid-pocket-g2.dts
+ create mode 100644 arch/arm64/boot/dts/qcom/sm8635.dtsi
+
+diff --git a/Documentation/devicetree/bindings/arm/qcom.yaml b/Documentation/devicetree/bindings/arm/qcom.yaml
+index 121ca557c..237c2b5ee 100644
+--- a/Documentation/devicetree/bindings/arm/qcom.yaml
++++ b/Documentation/devicetree/bindings/arm/qcom.yaml
+@@ -1209,6 +1209,11 @@ properties:
+           - const: qcom,qcs8550
+           - const: qcom,sm8550
+ 
++      - items:
++          - enum:
++              - retroidpocket,pocket-g2
++          - const: qcom,sm8635
++
+       - items:
+           - enum:
+               - ayaneo,pocket-s2
+diff --git a/arch/arm64/boot/dts/qcom/Makefile b/arch/arm64/boot/dts/qcom/Makefile
+index 88230c4e0..ff6d003d5 100644
+--- a/arch/arm64/boot/dts/qcom/Makefile
++++ b/arch/arm64/boot/dts/qcom/Makefile
+@@ -440,6 +440,7 @@ dtb-$(CONFIG_ARCH_QCOM)	+= sm8550-mtp.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= sm8550-qrd.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= sm8550-samsung-q5q.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= sm8550-sony-xperia-yodo-pdx234.dtb
++dtb-$(CONFIG_ARCH_QCOM)	+= sm8635-retroid-pocket-g2.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= sm8650-ayaneo-pocket-s2.dtb
+ 
+ sm8650-hdk-display-card-dtbs	:= sm8650-hdk.dtb sm8650-hdk-display-card.dtbo
+diff --git a/arch/arm64/boot/dts/qcom/sm8635-retroid-pocket-g2.dts b/arch/arm64/boot/dts/qcom/sm8635-retroid-pocket-g2.dts
+new file mode 100644
+index 000000000..491df565c
+--- /dev/null
++++ b/arch/arm64/boot/dts/qcom/sm8635-retroid-pocket-g2.dts
+@@ -0,0 +1,21 @@
++// SPDX-License-Identifier: BSD-3-Clause
++/*
++ * Copyright (C) 2026 Jean-Ralphio Saperstein
++ */
++
++/dts-v1/;
++
++#include "sm8635.dtsi"
++
++/ {
++	model = "Retroid Pocket G2";
++	compatible = "retroidpocket,pocket-g2", "qcom,sm8635", "qcom,mtp";
++
++	chosen {
++		bootargs = "rootwait quiet console=ttyMSM0,115200n8";
++	};
++};
++
++&sdhc_2 {
++	status = "okay";
++};
+diff --git a/arch/arm64/boot/dts/qcom/sm8635.dtsi b/arch/arm64/boot/dts/qcom/sm8635.dtsi
+new file mode 100644
+index 000000000..45c6a8216
+--- /dev/null
++++ b/arch/arm64/boot/dts/qcom/sm8635.dtsi
+@@ -0,0 +1,10 @@
++// SPDX-License-Identifier: BSD-3-Clause
++
++/dts-v1/;
++
++#include "sm8650.dtsi"
++
++/ {
++	model = "Qualcomm Technologies, Inc. SM8635";
++	compatible = "qcom,sm8635", "qcom,mtp";
++};
